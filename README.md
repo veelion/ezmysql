@@ -104,9 +104,9 @@ if __name__ == '__main__':
     main()
 ```
 
-For details of synchronous, to see [examples/sync_example.py](exmples/sync_example.py)
+For details of synchronous, to see [examples/sync_example.py](examples/sync_example.py)
 
-For details of Asynchronous, to see [examples/async_example.py](exmples/async_example.py)
+For details of Asynchronous, to see [examples/async_example.py](examples/async_example.py)
 
 
 # USING NOTES:
