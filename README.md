@@ -35,7 +35,7 @@ Hihg level methods to operate one table:
 * connection.table_insert(): to insert a row(dict) to the table
 * connection.table_update(): to update the table with condition
 
-For example:
+# For example:
 
 ``` python
 from ezmysql import ConnectionSync
@@ -105,6 +105,7 @@ if __name__ == '__main__':
 ```
 
 For details of synchronous, to see [examples/sync_example.py](exmples/sync_example.py)
+
 For details of Asynchronous, to see [examples/async_example.py](exmples/async_example.py)
 
 
