@@ -2,7 +2,7 @@
 
 import zlib
 import sys
-sys.path.append('..')
+sys.path.insert(0, '..')
 
 from ezmysql import ConnectionSync
 
@@ -42,6 +42,16 @@ def main():
     assert row['title'] == title
     assert row['text'] == text
 
+    # test query_many
+    sqls = [
+        'select * from simple where id={}'.format(r),
+        'select count(*) as count from simple'
+    ]
+    rets = db.query_many(sqls)
+    print(rets)
+    assert rets[0][0]['title'] == title
+    print(rets[1][0]['count'])
+
     print('## test WARNING-0')
     sql = 'update simple set title="%s" where id=1'
     r = db.execute(sql, 'apple')
@@ -77,6 +87,9 @@ def main():
         for k, v in r.items():
             print('%s: %s' % (k, v))
         print('======================')
+    # drop table
+    sql = 'drop table simple'
+    db.execute(sql)
     db.close()
     print('testing succeed!')
 

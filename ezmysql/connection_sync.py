@@ -63,6 +63,21 @@ class ConnectionSync:
         self.close()
         self._db = pymysql.connect(**self._db_args)
 
+    def query_many(self, queries):
+        """query many SQLs, Returns all result."""
+        assert isinstance(queries, list)
+        cursor = self._cursor()
+        results = []
+        for query in queries:
+            try:
+                cursor.execute(query)
+                result = cursor.fetchall()
+            except Exception as e:
+                print(e)
+                result = []
+            results.append(result)
+        return results
+
     def query(self, query, *parameters, **kwparameters):
         """Returns a row list for the given query and parameters."""
         cursor = self._cursor()
