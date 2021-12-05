@@ -81,6 +81,25 @@ def main():
     assert r['text'] == updates['text']
     assert bin_zip == zlib.decompress(r['bin']).decode('utf8')
 
+    print('\n## table_insert_many ...')
+    items = [
+        {
+            'title': 'abdfe\'klj',
+            'text': 'we%swe',
+            'length': 234,
+            'bin': b'jkl"de"ee',
+        },
+        {
+            'title': 'abdfe\'klj',
+            'text': 'we"zz"we',
+            'length': 234,
+            'bin': b'jkl"de"ee',
+        }
+    ]
+    lid = db.table_insert_many('simple', items)
+
+
+
     print('\n## db.query()...')
     rows = db.query('select * from simple where text like %s limit %s', '%item%', 10)
     for r in rows:

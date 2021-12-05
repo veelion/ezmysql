@@ -55,6 +55,8 @@ class ConnectionSync:
     def close(self):
         """Closes this database connection."""
         if getattr(self, "_db", None) is not None:
+            if not self._db_args['autocommit']:
+                self._db.commit()
             self._db.close()
             self._db = None
 
@@ -152,6 +154,29 @@ class ConnectionSync:
                         print(fields[i], ' : ', len(vs), type(values[i]))
                     else:
                         print(fields[i], ' : ', vs, type(values[i]))
+                raise e
+
+    def table_insert_many(self, table_name, items):
+        ''' items: list of item'''
+        assert isinstance(items, list)
+        item = items[0]
+        fields = list(item.keys())
+        values = [list(item.values()) for item in items]
+        fieldstr = ','.join(fields)
+        valstr = ','.join(['%s'] * len(item))
+        sql = 'INSERT INTO {} ({}) VALUES({})'.format(
+            table_name, fieldstr, valstr)
+        cursor = self._cursor()
+        try:
+            last_id = cursor.executemany(sql, values)
+            return last_id
+        except Exception as e:
+            if e.args[0] == 1062:
+                # just skip duplicated item error
+                pass
+            else:
+                traceback.print_exc()
+                print('sql:', sql)
                 raise e
 
     def table_update(self, table_name, updates,
