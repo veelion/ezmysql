@@ -141,6 +141,7 @@ class ConnectionSync:
             last_id = self.execute(sql, *values)
             return last_id
         except Exception as e:
+            print(e)
             if e.args[0] == 1062:
                 # just skip duplicated item error
                 pass
@@ -171,6 +172,7 @@ class ConnectionSync:
             last_id = cursor.executemany(sql, values)
             return last_id
         except Exception as e:
+            print('\t', e)
             if e.args[0] == 1062:
                 # just skip duplicated item error
                 pass
