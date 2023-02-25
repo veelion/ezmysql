@@ -1,4 +1,4 @@
-"""A lightweight wrapper around PyMySQL for easy to use
+"""A lightweight wrapper around oracledb for easy to use
 Only for python 3
 """
 
@@ -9,7 +9,7 @@ import oracledb
 
 class ConnectionOracle:
     def __init__(self, host, database, user, password,
-                 port=0,
+                 port=1521,
                  max_idle_time=7*3600,
                  connect_timeout=10,
                  autocommit=True,
