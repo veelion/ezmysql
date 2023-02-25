@@ -191,7 +191,7 @@ class ConnectionSync:
             upsets.append(s)
             values.append(v)
         upsets = ','.join(upsets)
-        sql = 'UPDATE {} SET {} WHERE {}="{}"'.format(
+        sql = "UPDATE {} SET {} WHERE {}='{}'".format(
             table_name,
             upsets,
             field_where, value_where,
