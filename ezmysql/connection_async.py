@@ -46,9 +46,6 @@ class ConnectionAsync:
             self.pool.terminate()
             self.pool = None
 
-    async def select_db(self, db):
-        await aiomysql.select_db(db)
-
     async def init_pool(self):
         if not self.db_args['loop']:
             self.db_args['loop'] = asyncio.get_running_loop()
