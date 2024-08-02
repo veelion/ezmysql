@@ -130,6 +130,47 @@ class ConnectionSync:
         return d
 
     def table_insert(self, table_name, item):
+        keys, values = [], []
+        for k, v in item.items():
+            if v is None:
+                continue
+            keys.append(k)
+            if isinstance(v, (list, tuple)):
+                # for mva type of manticore search
+                x = ','.join([str(i) for i in v])
+                x = f"({x})"
+                values.append(x)
+            elif isinstance(v, str):
+                v = v.strip('\\')
+                v = v.replace('%', '%%').replace("'", "\\'")
+                values.append(f"'{v}'")
+            else:
+                values.append(f"{v}")
+        keys_str = ','.join(keys)
+        values_str = ','.join(values)
+        sql = f'INSERT INTO {table_name} ({keys_str}) VALUES ({values_str})'
+        try:
+            last_id = self.execute(sql)
+            return last_id
+        except Exception as e:
+            print(e)
+            if e.args[0] == 1062:
+                # just skip duplicated item error
+                pass
+            else:
+                traceback.print_exc()
+                print('sql:', sql)
+                print('item:')
+                for i in range(len(keys)):
+                    vs = str(values[i])
+                    if len(vs) > 300:
+                        print(keys[i], ' : ', len(vs), type(values[i]))
+                    else:
+                        print(keys[i], ' : ', vs, type(values[i]))
+                raise e
+
+
+    def table_insert0(self, table_name, item):
         '''item is a dict : key is mysql table field'''
         fields = list(item.keys())
         values = list(item.values())
@@ -137,6 +178,8 @@ class ConnectionSync:
         valstr = ','.join(['%s'] * len(item))
         sql = 'INSERT INTO {} ({}) VALUES({})'.format(
             table_name, fieldstr, valstr)
+        print(sql)
+        print(values)
         try:
             last_id = self.execute(sql, *values)
             return last_id
@@ -187,13 +230,24 @@ class ConnectionSync:
         upsets = []
         values = []
         for k, v in updates.items():
-            s = '{}=%s'.format(k)
+            if k == 'mva':
+                s = f'{k}={v}'
+                if s.endswith(',)'):
+                    s = s.replace(',)', ')')
+            elif isinstance(v, str):
+                s = f"{k}='{v}'"
+            else:
+                s = f"{k}={v}"
             upsets.append(s)
-            values.append(v)
         upsets = ','.join(upsets)
-        sql = "UPDATE {} SET {} WHERE {}='{}'".format(
+        if isinstance(value_where, str):
+            sql = "UPDATE {} SET {} WHERE {}='{}'"
+        else:
+            sql = "UPDATE {} SET {} WHERE {}={}"
+        sql = sql.format(
             table_name,
             upsets,
             field_where, value_where,
         )
-        self.execute(sql, *(values))
+        print(sql)
+        self.execute(sql)

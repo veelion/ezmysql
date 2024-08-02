@@ -7,6 +7,11 @@ import traceback
 import oracledb
 
 
+def rowfactory(columns, args):
+    args = [str(a) if isinstance(a, oracledb.CLOB) else a for a in args]
+    return dict(zip(columns, args))
+
+
 class ConnectionOracle:
     def __init__(self, host, database, user, password,
                  port=1521,
@@ -28,6 +33,7 @@ class ConnectionOracle:
             self._db_args['port'] = port
         self._db = None
         self._last_use_time = time.time()
+        oracledb.init_oracle_client()
         self.reconnect()
 
     def _ensure_connected(self):
@@ -64,6 +70,8 @@ class ConnectionOracle:
             if self._return_dict:
                 columns = [col[0] for col in cursor.description]
                 cursor.rowfactory = lambda *args: dict(zip(columns, args))
+                # cursor.rowfactory = lambda *args: dict(zip(columns, [str(a) if isinstance(a, oracledb.LOB) else a for a in args]))
+                # cursor.rowfactory = lambda *args: dict(zip(columns, map(str, args)))
             result = cursor.fetchall()
             return result
         finally:
@@ -77,6 +85,8 @@ class ConnectionOracle:
             cursor.execute(query, kwparameters or parameters)
             if self._return_dict:
                 columns = [col[0] for col in cursor.description]
+                # cursor.rowfactory = lambda *args: dict(zip(columns, map(str, args)))
+                # cursor.rowfactory = lambda *args: dict(zip(columns, [str(a) if isinstance(a, oracledb.LOB) else a for a in args]))
                 cursor.rowfactory = lambda *args: dict(zip(columns, args))
             return cursor.fetchone()
         finally:
